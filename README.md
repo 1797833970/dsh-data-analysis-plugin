@@ -6,8 +6,8 @@
 
 ## 包
 
-所有包统一使用 `@andy1797833970` scope。仓库当前为**私有**：
-`https://github.com/andy1797833970/dsh-data-analysis-plugin`。
+所有包统一使用 `@andy1797833970` scope。仓库公开地址：
+`https://github.com/1797833970/dsh-data-analysis-plugin`。
 
 | 包 | 职责 |
 |---|---|
@@ -20,10 +20,10 @@
 
 完整步骤（含删除旧插件与重装验证）见 [docs/INSTALL.md](docs/INSTALL.md)。
 
-最短路径（包发布后）：
+最短路径（包发布后；显式锁版本以避免 npm `latest` 指向损坏的旧包）：
 
 ```sh
-dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0-rc.5
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
@@ -47,9 +47,9 @@ scripts/setup-python.ps1   # Windows
 
 ## 开发与构建
 
-本仓库的 `@deepseek-ai/dsh-*` 与 `@deepseek-ai/cordis` / `schemastery` 以
-`^0.1.0-rc.5` 作为 peer/dev 依赖；在这些包发布到 npm 之前，`pnpm install`
-无法独立完成，需要配合 `deepseek-harness` 源码 checkout 使用。
+本仓库的 `@deepseek-ai/dsh-*` 以 `^0.1.0-rc.6` 作为 peer/dev 依赖，
+`@deepseek-ai/cordis` 为 `^4.0.1`、`schemastery` 为 `^3.18.1`。`pnpm install`
+可独立完成，不需要 dsh 源码 checkout。
 
 ```sh
 pnpm install

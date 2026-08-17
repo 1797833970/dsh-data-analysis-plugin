@@ -8,15 +8,13 @@
 - Python 3.11+，先运行 `scripts/setup-python.ps1` / `setup-python.sh`。
 - `DSH_PYTHON` 指向该 Python 解释器。
 
-## 第一步：私有发布到 GitHub
+## 第一步：公开发布到 GitHub
 
-1. 在 GitHub 新建**私有**仓库 `dsh-data-analysis-plugin`（不要初始化 README）。
-2. 推送本仓库：
+仓库公开地址：
 
-   ```sh
-   git remote add origin https://github.com/<你>/dsh-data-analysis-plugin.git
-   git push -u origin main
-   ```
+```sh
+git clone https://github.com/1797833970/dsh-data-analysis-plugin.git
+```
 
 ## 第二步：删除本地旧插件
 
@@ -35,22 +33,24 @@ rm -rf packages/client/ui-data-analysis
 
 ## 第三步：重新安装
 
-### 方式 A：本地路径（dsh 未发布时可用）
+### 方式 A：本地路径（开发 / dsh 未发布时可用）
 
-在 dsh 源码 checkout 与 `dsh-data-analysis-plugin` 同级的前提下：
+先构建本仓库：
 
 ```sh
+pnpm install
+pnpm build
 scripts/reinstall-local.ps1
 ```
 
-脚本会：借用 dsh 源码内原型的 `lib/` 作为构建产物 → 创建 profile → 以 `file:`
-路径加入 4 个 `@andy1797833970/*` 包 → `pnpm install` → 打印启动命令。这是
-dsh 未发布 npm 期间的临时构建方式。
+脚本会打包 4 个 `@andy1797833970/*` 包 → 创建 `data-analysis` profile → 用
+`pnpm.overrides` 把内部依赖重定向到本地 tarball → `pnpm install` → 打印启动
+命令。
 
 ### 方式 B：npm 安装（dsh 发布后）
 
 ```sh
-dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0-rc.5
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```

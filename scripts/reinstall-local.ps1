@@ -6,29 +6,44 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-Write-Host "== 1. Build plugin packages (copy lib from dsh in-repo prototypes)" -ForegroundColor Cyan
-$pairs = @(
-  @("packages\code-runtime\code-runtime-python", "packages\code-runtime\code-runtime-python"),
-  @("packages\data-analysis\data-analysis",       "packages\data-analysis\data-analysis"),
-  @("packages\data-analysis\skill-data-analysis", "packages\data-analysis\skill-data-analysis"),
-  @("packages\data-analysis\bundle-data-analysis","packages\data-analysis\bundle-data-analysis")
+# dsh resolves its home from $DSH_HOME first, then ~/.dsh. Match that order so
+# `dsh --profile` sees the same profile this script installs.
+$dshHome = $env:DSH_HOME
+if ([string]::IsNullOrWhiteSpace($dshHome)) {
+  $dshHome = Join-Path $env:USERPROFILE '.dsh'
+}
+$profileDir = Join-Path $dshHome (Join-Path 'profiles' $Profile)
+
+Write-Host "== 1. Build plugin packages" -ForegroundColor Cyan
+& pnpm --dir $PluginRoot build
+
+Write-Host "== 2. Pack plugin packages to local tarballs" -ForegroundColor Cyan
+$packDir = Join-Path $env:TEMP 'dsh-plugin-packs'
+if (Test-Path -LiteralPath $packDir) { Remove-Item -LiteralPath $packDir -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $packDir | Out-Null
+
+$packages = @(
+  'packages\code-runtime\code-runtime-python',
+  'packages\data-analysis\data-analysis',
+  'packages\data-analysis\skill-data-analysis',
+  'packages\data-analysis\bundle-data-analysis'
 )
-foreach ($p in $pairs) {
-  $src = Join-Path $DshRoot ($p[0] + "\lib")
-  $dst = Join-Path $PluginRoot ($p[1] + "\lib")
-  if (-not (Test-Path -LiteralPath $src)) { throw "missing in-repo lib: $src" }
-  if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Recurse -Force }
-  Copy-Item -LiteralPath $src -Destination $dst -Recurse
+foreach ($pkg in $packages) {
+  & pnpm --dir (Join-Path $PluginRoot $pkg) pack --pack-destination $packDir | Out-Null
 }
 
-Write-Host "== 2. Create profile $Profile" -ForegroundColor Cyan
-$profileDir = Join-Path (Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles') $Profile
+Write-Host "== 3. Recreate profile $Profile at $profileDir" -ForegroundColor Cyan
+if (Test-Path -LiteralPath $profileDir) { Remove-Item -LiteralPath $profileDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
-@"
+
+$packUri = $packDir.Replace('\', '/')
+$manifest = @"
 {
   "name": "dsh-profile-$Profile",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "@andy1797833970/dsh-bundle-data-analysis": "file:$packUri/andy1797833970-dsh-bundle-data-analysis-0.1.0-rc.5.tgz"
+  },
   "dsh": {
     "profile": {
       "bundles": [
@@ -39,29 +54,23 @@ New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
     }
   }
 }
-"@ | Set-Content -LiteralPath (Join-Path $profileDir 'package.json') -Encoding utf8
-if (-not (Test-Path -LiteralPath (Join-Path $profileDir 'cordis.patch.yml'))) {
-  "[]" | Set-Content -LiteralPath (Join-Path $profileDir 'cordis.patch.yml') -Encoding utf8
-}
-@"
+"@
+$workspace = @"
 packages:
   - .
 
 nodeLinker: hoisted
 autoInstallPeers: false
-"@ | Set-Content -LiteralPath (Join-Path $profileDir 'pnpm-workspace.yaml') -Encoding utf8
 
-Write-Host "== 3. Add plugin packages by file path" -ForegroundColor Cyan
-$pluginPkgs = @(
-  "packages\code-runtime\code-runtime-python",
-  "packages\data-analysis\data-analysis",
-  "packages\data-analysis\skill-data-analysis",
-  "packages\data-analysis\bundle-data-analysis"
-)
-foreach ($p in $pluginPkgs) {
-  $path = Join-Path $PluginRoot $p
-  & pnpm --dir $profileDir add "file:$path"
-}
+overrides:
+  '@andy1797833970/dsh-code-runtime-python': file:$packUri/andy1797833970-dsh-code-runtime-python-0.1.0-rc.5.tgz
+  '@andy1797833970/dsh-data-analysis': file:$packUri/andy1797833970-dsh-data-analysis-0.1.0-rc.5.tgz
+  '@andy1797833970/dsh-skill-data-analysis': file:$packUri/andy1797833970-dsh-skill-data-analysis-0.1.0-rc.5.tgz
+"@
+
+Set-Content -LiteralPath (Join-Path $profileDir 'package.json') -Value $manifest -Encoding utf8
+Set-Content -LiteralPath (Join-Path $profileDir 'cordis.patch.yml') -Value "[]`n" -Encoding utf8
+Set-Content -LiteralPath (Join-Path $profileDir 'pnpm-workspace.yaml') -Value $workspace -Encoding utf8
 
 Write-Host "== 4. Install profile" -ForegroundColor Cyan
 & pnpm --dir $profileDir install
