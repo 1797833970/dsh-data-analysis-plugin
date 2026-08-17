@@ -40,14 +40,12 @@ rm -rf packages/client/ui-data-analysis
 在 dsh 源码 checkout 与 `dsh-data-analysis-plugin` 同级的前提下：
 
 ```sh
-dsh plugin --profile data-analysis add \
-  "file:$(pwd)/data-analysis-plugin/packages/data-analysis/bundle-data-analysis"
-dsh plugin --profile data-analysis install
-dsh --profile data-analysis
+scripts/reinstall-local.ps1
 ```
 
-`file:` 依赖会把 bundle 及其 `@andy1797833970/*` 子包一起装入 profile；
-`@deepseek-ai/*` peer 依赖从 dsh 安装的 healed fallback 解析。
+脚本会：借用 dsh 源码内原型的 `lib/` 作为构建产物 → 创建 profile → 以 `file:`
+路径加入 4 个 `@andy1797833970/*` 包 → `pnpm install` → 打印启动命令。这是
+dsh 未发布 npm 期间的临时构建方式。
 
 ### 方式 B：npm 安装（dsh 发布后）
 
