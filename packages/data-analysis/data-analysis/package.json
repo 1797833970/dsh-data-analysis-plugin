@@ -34,7 +34,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/schemastery": "^0.1.0-rc.5",
+    "@deepseek-ai/schemastery": "^3.18.1",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
@@ -44,7 +44,7 @@
     "@deepseek-ai/dsh-session-projection": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-subprocess": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.5",
-    "@deepseek-ai/cordis": "^0.1.0-rc.5"
+    "@deepseek-ai/cordis": "^4.0.1"
   },
   "devDependencies": {
     "@deepseek-ai/dsh-agent-loop": "^0.1.0-rc.5",
@@ -58,6 +58,6 @@
     "@deepseek-ai/dsh-subprocess": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-subprocess-local": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.5",
-    "@deepseek-ai/cordis": "^0.1.0-rc.5"
+    "@deepseek-ai/cordis": "^4.0.1"
   }
 }
