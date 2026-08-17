@@ -18,7 +18,7 @@
 
 ## 安装与运行
 
-见 [examples/README.md](examples/README.md)。
+完整步骤（含删除旧插件与重装验证）见 [docs/INSTALL.md](docs/INSTALL.md)。
 
 最短路径（包发布后）：
 
