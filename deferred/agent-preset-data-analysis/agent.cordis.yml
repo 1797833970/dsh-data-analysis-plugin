@@ -1,0 +1,52 @@
+# The `data-analysis` agent preset: the data-analysis agent as Code Mode.
+#
+# The Python code runtime, the data-analysis tools, and the skill are mounted
+# by `@deepseek-ai/dsh-bundle-data-analysis` in the HOST plane; this preset owns
+# the per-agent persona and the model-facing tools the agent needs. It shares
+# the code-runtime/preset relationship of the `code` preset, except the runtime
+# language is Python.
+
+# ── identity ────────────────────────────────────────────────────────────────
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    text: >-
+      你是数据分析智能体，工作目录是 {{cwd}}。用户上传表格数据并提出分析问题。
+      先通过 skill 工具加载 data-analysis 技能，再按该技能完成清洗、探索、可视化或机器学习建模，最终产出图表与报告。
+
+# ── skills ──────────────────────────────────────────────────────────────────
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+
+# ── filesystem ──────────────────────────────────────────────────────────────
+
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+# ── collaboration tools ─────────────────────────────────────────────────────
+
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
+
+- id: tool-todo
+  name: '@deepseek-ai/dsh-tool-todo'
+  config:
+    allowParallelInProgress: true
+
+# ── presentation ────────────────────────────────────────────────────────────
+
+# Code Mode against the Python runtime mounted by the data-analysis bundle.
+- id: tool-presentation
+  name: '@deepseek-ai/dsh-agent-tool-presentation'
+  config:
+    mode: code
