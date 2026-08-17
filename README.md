@@ -19,6 +19,8 @@
 ## 安装与运行
 
 完整步骤（含删除旧插件与重装验证）见 [docs/INSTALL.md](docs/INSTALL.md)。
+想理解这个插件“是怎么做出来的”、每个零件在干嘛，见
+[docs/data-analysis-plugin-tutorial.zh.md](docs/data-analysis-plugin-tutorial.zh.md)（小白版教学）。
 
 最短路径（包发布后；显式锁版本以避免 npm `latest` 指向损坏的旧包）：
 
