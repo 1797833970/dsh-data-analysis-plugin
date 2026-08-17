@@ -1,0 +1,65 @@
+# The data-analysis host layer for the dedicated `data-analysis` profile.
+# Applied after dsh-base + dsh-headless, so it disables the TypeScript code
+# runtime and replaces it with the Python backend (`ctx.codeRuntime` is a
+# single-service seam).
+
+- id: code-runtime
+  disabled: true
+
+# The web profile disables the model-facing skill tool, but the data-analysis
+# persona asks the model to load the skill family through it.
+- id: tool-skill
+  disabled: false
+
+- id: system-prompt
+  config:
+    persona: >-
+      你是数据分析智能体，工作目录是 {{cwd}}。用户上传表格数据并提出分析问题。
+      先通过 skill 工具加载 data-analysis 技能，再按该技能完成清洗、探索、可视化或机器学习建模，最终产出图表与报告。
+      数据文件以用户提供的路径为准；如果 load_table 报找不到文件，向用户询问完整绝对路径，不要自己猜相对路径，也不要直接用 pd.read_csv 跳过 load_table。
+
+- id: tools
+  config:
+    mode: code
+
+- insert:
+    # The Python execution backend: the model writes pandas/sklearn in run_code.
+    - id: code-runtime-python
+      name: '@andy1797833970/dsh-code-runtime-python'
+      config:
+        pythonCommand: !!js process.env.DSH_PYTHON || 'python'
+        allowedModules:
+          - pandas
+          - numpy
+          - matplotlib
+          - sklearn
+        timeoutMs: 120000
+        graceMs: 5000
+        maxOutputBytes: 1048576
+
+    # Deterministic boundaries plus the analysisState projection.
+    - id: data-analysis
+      name: '@andy1797833970/dsh-data-analysis'
+      config:
+        supportedExtensions:
+          - .csv
+          - .tsv
+          - .txt
+          - .xlsx
+          - .xls
+          - .json
+          - .parquet
+        autoModeKeywords:
+          - 全自动
+          - 自动分析
+          - 自动跑
+          - auto
+        maxQuestionLength: 2000
+
+    # The data-analysis skill family.
+    - id: skill-data-analysis
+      name: '@andy1797833970/dsh-skill-data-analysis'
+
+    # Stage gates (dsh-base does not mount the ask-user tool).
+    - id: tool-ask-user
+      name: '@deepseek-ai/dsh-tool-ask-user'

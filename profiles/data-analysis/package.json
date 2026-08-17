@@ -1,0 +1,16 @@
+{
+  "name": "dsh-profile-data-analysis",
+  "private": true,
+  "dependencies": {
+    "@andy1797833970/dsh-bundle-data-analysis": "latest"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@andy1797833970/dsh-bundle-data-analysis"
+      ]
+    }
+  }
+}

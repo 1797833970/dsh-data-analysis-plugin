@@ -1,0 +1,8 @@
+node_modules/
+lib/
+.venv/
+*.tsbuildinfo
+__pycache__/
+*.pyc
+.DS_Store
+*.log

@@ -1,0 +1,9 @@
+pandas
+numpy
+matplotlib
+scikit-learn
+pyarrow
+openpyxl
+xlrd
+xhtml2pdf
+markdown

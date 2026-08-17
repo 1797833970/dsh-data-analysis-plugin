@@ -1,0 +1,44 @@
+{
+  "name": "@andy1797833970/dsh-skill-data-analysis",
+  "description": "Runtime data-analysis skill: staged cleaning, EDA, visualization, and modeling recipes for the DeepSeek Harness data-analysis agent",
+  "version": "0.1.0-rc.5",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andy1797833970/dsh-data-analysis-plugin.git",
+    "directory": "packages/data-analysis/skill-data-analysis"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./invariant": {
+      "types": "./lib/types/invariant.d.ts",
+      "default": "./lib/invariant.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/invariant.js",
+    "toolbox",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-skill": "^0.1.0-rc.5",
+    "@deepseek-ai/cordis": "^0.1.0-rc.5"
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-skill": "^0.1.0-rc.5",
+    "@deepseek-ai/cordis": "^0.1.0-rc.5"
+  }
+}
