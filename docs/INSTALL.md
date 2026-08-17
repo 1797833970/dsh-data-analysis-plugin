@@ -50,7 +50,7 @@ scripts/reinstall-local.ps1
 ### 方式 B：npm 安装（dsh 发布后）
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0-rc.5
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```

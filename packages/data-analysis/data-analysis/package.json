@@ -1,7 +1,7 @@
 {
   "name": "@andy1797833970/dsh-data-analysis",
   "description": "Model-facing data-analysis tools, session events, and projection for the DeepSeek Harness data-analysis agent",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },

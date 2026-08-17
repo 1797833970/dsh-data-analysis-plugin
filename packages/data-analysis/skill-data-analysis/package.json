@@ -1,7 +1,7 @@
 {
   "name": "@andy1797833970/dsh-skill-data-analysis",
   "description": "Runtime data-analysis skill: staged cleaning, EDA, visualization, and modeling recipes for the DeepSeek Harness data-analysis agent",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },

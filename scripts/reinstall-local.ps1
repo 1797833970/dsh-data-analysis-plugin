@@ -42,7 +42,7 @@ $manifest = @"
   "name": "dsh-profile-$Profile",
   "private": true,
   "dependencies": {
-    "@andy1797833970/dsh-bundle-data-analysis": "file:$packUri/andy1797833970-dsh-bundle-data-analysis-0.1.0-rc.5.tgz"
+    "@andy1797833970/dsh-bundle-data-analysis": "file:$packUri/andy1797833970-dsh-bundle-data-analysis-0.1.0.tgz"
   },
   "dsh": {
     "profile": {
@@ -63,9 +63,9 @@ nodeLinker: hoisted
 autoInstallPeers: false
 
 overrides:
-  '@andy1797833970/dsh-code-runtime-python': file:$packUri/andy1797833970-dsh-code-runtime-python-0.1.0-rc.5.tgz
-  '@andy1797833970/dsh-data-analysis': file:$packUri/andy1797833970-dsh-data-analysis-0.1.0-rc.5.tgz
-  '@andy1797833970/dsh-skill-data-analysis': file:$packUri/andy1797833970-dsh-skill-data-analysis-0.1.0-rc.5.tgz
+  '@andy1797833970/dsh-code-runtime-python': file:$packUri/andy1797833970-dsh-code-runtime-python-0.1.0.tgz
+  '@andy1797833970/dsh-data-analysis': file:$packUri/andy1797833970-dsh-data-analysis-0.1.0.tgz
+  '@andy1797833970/dsh-skill-data-analysis': file:$packUri/andy1797833970-dsh-skill-data-analysis-0.1.0.tgz
 "@
 
 Set-Content -LiteralPath (Join-Path $profileDir 'package.json') -Value $manifest -Encoding utf8

@@ -25,7 +25,7 @@
 最短路径（包发布后；显式锁版本以避免 npm `latest` 指向损坏的旧包）：
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0-rc.5
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
