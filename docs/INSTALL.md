@@ -50,10 +50,15 @@ scripts/reinstall-local.ps1
 ### 方式 B：npm 安装（dsh 发布后）
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
+dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis@0.1.0
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
+
+两条 `add` 必须分开执行（合并成一条会把 bundle 层顺序排错，导致 `code-runtime`
+无法被禁用）。安装后可用 `dsh --profile data-analysis --dump-config` 确认
+`code-runtime` 为 `disabled: true` 且 `code-runtime-python` 已挂载。
 
 ## 第四步：验证
 

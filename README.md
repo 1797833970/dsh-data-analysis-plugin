@@ -25,10 +25,15 @@
 最短路径（包发布后；显式锁版本以避免 npm `latest` 指向损坏的旧包）：
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
+dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis@0.1.0
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
+
+注意：两条 `add` 必须分开执行，pnpm 会把依赖按字母序写入，合并成一条命令会让
+bundle 层顺序变成 `[base, bundle, web-app]`，导致 bundle 找不到 `code-runtime`
+去禁用。
 
 ## Python 环境
 

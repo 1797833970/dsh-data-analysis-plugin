@@ -6,7 +6,8 @@ Once the `@andy1797833970/*` packages are published (versions pinned because
 `@deepseek-ai/dsh-web-app`'s npm `latest` tag still points at a broken build):
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6 @andy1797833970/dsh-bundle-data-analysis@0.1.0
+dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
+dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis@0.1.0
 dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
