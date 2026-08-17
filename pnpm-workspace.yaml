@@ -1,2 +1,10 @@
 packages:
   - packages/*/*
+
+# pnpm 11 blocks install/build scripts until explicitly reviewed. The Python
+# code runtime needs these native providers at runtime (PTY + Windows FFI + the
+# local subprocess provider's postinstall), so approve exactly these scripts.
+allowBuilds:
+  node-pty: true
+  koffi: true
+  '@deepseek-ai/dsh-subprocess-local': true

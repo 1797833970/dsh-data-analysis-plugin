@@ -38,9 +38,9 @@
     }
   },
   "dependencies": {
-    "@andy1797833970/dsh-code-runtime-python": "^0.1.0-rc.5",
-    "@andy1797833970/dsh-data-analysis": "^0.1.0-rc.5",
-    "@andy1797833970/dsh-skill-data-analysis": "^0.1.0-rc.5"
+    "@andy1797833970/dsh-code-runtime-python": "workspace:^",
+    "@andy1797833970/dsh-data-analysis": "workspace:^",
+    "@andy1797833970/dsh-skill-data-analysis": "workspace:^"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6",
@@ -48,6 +48,9 @@
   },
   "devDependencies": {
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6",
-    "@deepseek-ai/cordis": "^4.0.1"
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/cordis-plugin-include": "^1.0.6",
+    "js-yaml": "^4.1.0",
+    "@types/js-yaml": "^4.0.9"
   }
 }

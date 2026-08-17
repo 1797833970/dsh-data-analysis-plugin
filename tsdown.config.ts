@@ -8,6 +8,7 @@ export default defineConfig({
   format: ['esm'],
   platform: 'node',
   target: 'es2024',
+  fixedExtension: false,
   dts: false,
   clean: false,
   external: [/^@deepseek-ai\//, /^@andy1797833970\//, /^node:/, /^zod$/],

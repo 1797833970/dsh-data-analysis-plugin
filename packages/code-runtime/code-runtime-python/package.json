@@ -50,7 +50,7 @@
     "@deepseek-ai/dsh-agent-loop": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-agent-loop-testkit": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-code-runtime": "^0.1.0-rc.6",
-    "@andy1797833970/dsh-data-analysis": "^0.1.0-rc.5",
+    "@andy1797833970/dsh-data-analysis": "workspace:^",
     "@deepseek-ai/dsh-fs-local": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",

@@ -31,15 +31,15 @@ export const inject = ['tools', 'subprocess', 'fs']
 /** Model-facing data-analysis tool configuration. */
 export interface Config {
   /** Lowercase file extensions (with dot) `load_table` accepts. */
-  supportedExtensions: string[]
+  supportedExtensions?: string[]
   /** Keywords that select run-to-completion auto mode. */
-  autoModeKeywords: string[]
+  autoModeKeywords?: string[]
   /** Maximum accepted question length in characters. */
-  maxQuestionLength: number
+  maxQuestionLength?: number
   /** Python executable used by `export_pdf`; omit for the platform default. */
-  pdfPythonCommand: string
+  pdfPythonCommand?: string
   /** Wall-clock budget for one PDF render before the render is aborted. */
-  pdfTimeoutMs: number
+  pdfTimeoutMs?: number
 }
 
 /** Schemastery configuration for the data-analysis consumer. */
@@ -291,6 +291,13 @@ async function loadTableSchema(
  * @param config - deployment's explicit data-analysis policy.
  */
 export function apply(ctx: Context, config: Config): void {
+  const policy = {
+    supportedExtensions: config.supportedExtensions ?? ['.csv', '.tsv', '.txt', '.xlsx', '.xls', '.json', '.parquet'],
+    autoModeKeywords: config.autoModeKeywords ?? ['全自动', '自动分析', '自动跑', 'auto'],
+    maxQuestionLength: config.maxQuestionLength ?? 2000,
+    pdfPythonCommand: config.pdfPythonCommand ?? (process.platform === 'win32' ? 'python' : 'python3'),
+    pdfTimeoutMs: config.pdfTimeoutMs ?? 30_000,
+  }
   ctx.inject(['sessionProjections'], (projectionCtx) => {
     projectionCtx.sessionProjections.register<'analysisState', AnalysisState>({
       key: 'analysisState',
@@ -357,15 +364,15 @@ export function apply(ctx: Context, config: Config): void {
       if (path.length === 0) throw new Error('invalid path: expected a non-empty string')
       const question = args.question.trim()
       if (question.length === 0) throw new Error('invalid question: expected a non-empty string')
-      if (question.length > config.maxQuestionLength) throw new Error(`question exceeds ${config.maxQuestionLength} characters`)
+      if (question.length > policy.maxQuestionLength) throw new Error(`question exceeds ${policy.maxQuestionLength} characters`)
       const format = extname(path).replace(/^\./, '').toLowerCase()
-      if (!config.supportedExtensions.includes(`.${format}`)) throw new Error(`unsupported file format .${format}`)
-      const autoMode = config.autoModeKeywords.some(keyword => question.includes(keyword))
+      if (!policy.supportedExtensions.includes(`.${format}`)) throw new Error(`unsupported file format .${format}`)
+      const autoMode = policy.autoModeKeywords.some(keyword => question.includes(keyword))
       if (!exec.agent) throw new Error('load_table requires an owning agent session')
       const workspaceRoot = exec.agent.session.header.cwd ?? process.cwd()
       const loadedPath = join(workspaceRoot, 'loaded.parquet')
       const schema = await loadTableSchema(
-        ctx, path, loadedPath, config.pdfPythonCommand, config.pdfTimeoutMs, exec.signal,
+      ctx, path, loadedPath, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal,
       )
       const loaded: AnalysisLoaded = { path, format, autoMode, question, ...schema === undefined ? {} : { schema, loadedPath } }
       exec.agent.session.append('analysis/loaded', loaded)
@@ -505,7 +512,7 @@ export function apply(ctx: Context, config: Config): void {
       const report = findReport(exec.agent.session.events, args.reportId)
       if (report === undefined) throw new Error(`report ${args.reportId} not found`)
       const html = renderReportHtml(report.markdown)
-      const bytes = await renderPdfBytes(ctx, report.markdown, config.pdfPythonCommand, config.pdfTimeoutMs, exec.signal)
+      const bytes = await renderPdfBytes(ctx, report.markdown, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal)
       if (bytes === undefined) return { reportId: args.reportId, html }
       const workspaceRoot = exec.agent.session.header.cwd ?? process.cwd()
       const pdfPath = join(workspaceRoot, `report-${args.reportId}.pdf`)
