@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andy1797833970/dsh-data-analysis-plugin.git",
+    "url": "git+https://github.com/1797833970/dsh-data-analysis-plugin.git",
     "directory": "packages/data-analysis/bundle-data-analysis"
   },
   "type": "module",
