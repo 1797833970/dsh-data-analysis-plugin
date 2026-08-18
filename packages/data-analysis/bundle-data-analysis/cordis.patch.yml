@@ -55,10 +55,15 @@
           - 自动跑
           - auto
         maxQuestionLength: 2000
+        pdfPythonCommand: !!js process.env.DSH_PYTHON || 'python'
 
     # The data-analysis skill family.
     - id: skill-data-analysis
       name: '@andy1797833970/dsh-skill-data-analysis'
+
+    # Browser half: renders analysis/chart and analysis/report nodes.
+    - id: client-ui-data-analysis
+      name: '@andy1797833970/dsh-client-ui-data-analysis'
 
     # Stage gates (dsh-base does not mount the ask-user tool).
     - id: tool-ask-user

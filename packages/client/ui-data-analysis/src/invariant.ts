@@ -1,12 +1,12 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-client-ui-data-analysis`.
- * @module @deepseek-ai/dsh-client-ui-data-analysis/invariant
+ * Package-owned invariant companion for the data-analysis wizard UI plugin.
+ * @module @andy1797833970/dsh-client-ui-data-analysis/invariant
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-client-ui-data-analysis'
+const PACKAGE_NAME = '@andy1797833970/dsh-client-ui-data-analysis'
 
 /** Cordis companion plugin name. */
 export const name = 'client-ui-data-analysis-invariant'

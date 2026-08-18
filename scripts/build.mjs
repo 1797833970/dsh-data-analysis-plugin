@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { copyFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, resolve } from 'node:path'
 
@@ -26,6 +26,28 @@ for (const pkg of hostPackages) {
 }
 
 execFileSync(process.execPath, [tsdown, '--config', 'tsdown.config.ts', '--env.DSH_BUILD_FACE', 'host'], {
+  stdio: 'inherit',
+  cwd: root,
+})
+
+const clientPackage = 'client/ui-data-analysis'
+execFileSync(process.execPath, [tsc, '-p', join(root, 'packages', clientPackage, 'tsconfig.json')], {
+  stdio: 'inherit',
+  cwd: root,
+})
+copyFileSync(
+  join(root, 'packages', clientPackage, 'lib', 'types', 'index.js'),
+  join(root, 'packages', clientPackage, 'lib', 'index.js'),
+)
+copyFileSync(
+  join(root, 'packages', clientPackage, 'lib', 'types', 'invariant.js'),
+  join(root, 'packages', clientPackage, 'lib', 'invariant.js'),
+)
+execFileSync(process.execPath, [tsc, '-p', join(root, 'packages', clientPackage, 'tsconfig.client.json')], {
+  stdio: 'inherit',
+  cwd: root,
+})
+execFileSync(process.execPath, [tsdown, '--config', join(root, 'packages', clientPackage, 'tsdown.config.ts')], {
   stdio: 'inherit',
   cwd: root,
 })

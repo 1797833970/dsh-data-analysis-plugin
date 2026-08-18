@@ -1,13 +1,13 @@
 /**
  * Data-analysis wizard UI, browser half: durable chart and report conversation
  * nodes with ECharts and Markdown renderers.
- * @module @deepseek-ai/dsh-client-ui-data-analysis/client
+ * @module @andy1797833970/dsh-client-ui-data-analysis/client
  */
 
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-data-analysis/types'
+import type {} from '@andy1797833970/dsh-data-analysis/types'
 import { ChartNodeView } from './ChartNodeView.tsx'
 import { ReportNodeView } from './ReportNodeView.tsx'
 import { en, NS, zh, type DataAnalysisKey } from './locales.ts'

@@ -23,8 +23,8 @@ DeepSeek Harness 中并验证配置可用。不要改写插件源码，不要替
 
 ## 选择安装路径
 
-如果 npm registry 已有 `@andy1797833970/dsh-bundle-data-analysis`，走
-“发布包安装”。否则走“本地源码安装”。
+当前推荐优先走“本地源码安装”。只有用户明确要求使用 npm 发布包，或当前环境无法
+运行本地构建时，才走“发布包安装”。
 
 ### 发布包安装
 
@@ -32,11 +32,28 @@ DeepSeek Harness 中并验证配置可用。不要改写插件源码，不要替
 
 ```sh
 dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
-dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis@0.1.0
+dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis
 dsh plugin --profile data-analysis install
 ```
 
-两条 `add` 不能合并成一条。顺序决定 `dsh.profile.bundles` 中 `web-app` 和
+发布包安装后还要从插件源码目录安装 `data-analysis` agent preset：
+
+Windows PowerShell：
+
+```powershell
+cd "$PLUGIN_ROOT"
+powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\install-preset.ps1" -PluginRoot "$PLUGIN_ROOT"
+```
+
+macOS / Linux：
+
+```sh
+cd "$PLUGIN_ROOT"
+sh scripts/install-preset.sh
+```
+
+两条 `add` 不能合并成一条。`@deepseek-ai/dsh-web-app` 必须保留版本号
+`0.1.0-rc.6`，因为 npm 的 `latest` 标签目前仍指向更早版本。顺序决定 `dsh.profile.bundles` 中 `web-app` 和
 `bundle` 的先后；顺序错误会导致 `code-runtime` 未被禁用。执行后重启 dsh 才会
 加载插件。
 
@@ -46,11 +63,12 @@ dsh plugin --profile data-analysis install
 cd "$PLUGIN_ROOT"
 pnpm install
 pnpm build
-powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\reinstall-local.ps1" -PluginRoot "$PLUGIN_ROOT" -Profile data-analysis
+powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\reinstall-local.ps1" -DshRoot "$DSH_ROOT" -PluginRoot "$PLUGIN_ROOT" -Profile data-analysis
 ```
 
 脚本会打包 4 个包、重建 `$DSH_HOME/profiles/data-analysis`、用
-`pnpm.overrides` 把内部依赖重定向到本地 tarball，并执行 `pnpm install`。
+`pnpm.overrides` 把内部依赖重定向到本地 tarball、执行 `pnpm install`，并自动
+安装 `data-analysis` agent preset。
 
 ### 本地源码安装（macOS / Linux）
 
@@ -61,7 +79,8 @@ powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\reinstall-local.p
 ## 配置 Python 环境
 
 `setup-python.ps1` 在 Windows 上会交互询问是否设置用户环境变量，不适合 AI
-静默执行。用下面的非交互命令替代，并设置当前会话的 `DSH_PYTHON`。
+静默执行。用下面的非交互命令在插件根目录创建 `.venv`，并设置当前会话的
+`DSH_PYTHON`。
 
 Windows PowerShell：
 
@@ -108,6 +127,8 @@ pnpm dsh --profile data-analysis --dump-config
 - `code-runtime-python` 已挂载。
 - `data-analysis` 已挂载。
 - `skill-data-analysis` 已挂载。
+- `client-ui-data-analysis` 已挂载。
+- `agent-presets` 的可用列表里包含 `data-analysis`。
 - profile 的 `dsh.profile.bundles` 顺序为
   `@deepseek-ai/dsh-base`、`@deepseek-ai/dsh-web-app`、
   `@andy1797833970/dsh-bundle-data-analysis`。
@@ -125,6 +146,26 @@ dsh --profile data-analysis
 
 预期会话工作目录出现 `loaded.parquet`、`clean.parquet`，页面出现图表和报告。
 如果 `load_table` 报找不到文件，让用户提供完整绝对路径。
+
+## 卸载
+
+用户要求卸载时，从插件源码目录运行：
+
+Windows PowerShell：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\uninstall.ps1" -PluginRoot "$PLUGIN_ROOT"
+```
+
+macOS / Linux：
+
+```sh
+cd "$PLUGIN_ROOT"
+sh scripts/uninstall.sh
+```
+
+默认保留插件根目录的 `.venv`。如果用户明确要求连 `.venv` 一起删除，Windows
+加上 `-RemoveVenv`，macOS / Linux 加上 `--remove-venv`。
 
 ## 常见失败处理
 

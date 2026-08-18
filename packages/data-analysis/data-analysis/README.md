@@ -1,48 +1,27 @@
-# @andy1797833970/dsh-data-analysis
+# 数据分析工具
 
-Model-facing data-analysis tools plus the `analysisState` projection. The five
-tools own the deterministic boundaries; the model drives the analysis itself
-in Code Mode.
+这个包给模型提供读取表格、选择路线、保存图表、保存报告和导出 PDF 这些工具，并把分析过程记录下来。
 
-## What it does
+## 它做什么
 
-Registers `load_table`, `set_route`, `save_chart`, `save_report`, and
-`export_pdf` on `ctx.tools`. Each appends a durable `analysis/*` session event,
-and the `analysisState` projection folds those events plus the todo list into
-the wizard read model.
+提供五个工具：
 
-## Model Experience
+| 工具 | 作用 |
+| --- | --- |
+| 读取表格 | 登记要分析的文件，返回文件格式和是否全自动 |
+| 选择路线 | 固定这次分析走可视化路线还是机器学习路线 |
+| 保存图表 | 保存一张图表 |
+| 保存报告 | 保存最终报告 |
+| 导出 PDF | 把报告导出成 PDF，或退回 HTML |
 
-### Tools
+每使用一个工具，插件都会写一条会话记录。网页端根据这些记录，算出当前分析进度。
 
-#### What the model sees
+## 模型体验
 
-Five model-facing tool schemas: `load_table(path, question)`, `set_route(route)`, `save_chart(spec)`, `save_report(markdown)`, and `export_pdf(reportId)`.
+模型能看到这五个工具，以及它们需要什么参数。工具返回的结果很简短，例如读取表格后返回文件路径、格式和是否全自动。
 
-#### Token effect
+## 已知限制
 
-Fixed schema cost on every request where the tools are visible.
-
-#### KV Cache effect
-
-Prefix-stable while the definitions and visibility are unchanged.
-
-### Tool-call history and result
-
-#### What the model sees
-
-Results are compact: `load_table` returns `{ path, format, autoMode }`, `set_route` returns `{ route }`, `save_chart` returns `{ chartId, title }`, `save_report` returns `{ reportId }`, and `export_pdf` returns `{ reportId, html, pdfPath? }`.
-
-#### Token effect
-
-Data-dependent retained tokens for arguments and results until compaction.
-
-#### KV Cache effect
-
-Append-only; newly visible content follows the reusable request prefix.
-
-## Known Limitations
-
-- **HTML-first export** — `export_pdf` produces a PDF only when a configured Python renderer is available; otherwise it returns the HTML companion.
-- **Stateless analysis** — stages are stateless Code Mode runs; intermediate data persists as parquet files.
-- **No storage domain** — charts and reports live in session events plus the projection, not a cross-session domain.
+- PDF 导出依赖 Python 渲染工具；没有这个工具时，只返回 HTML。
+- 每次代码运行都是无状态的，中间数据必须保存成文件。
+- 图表和报告目前只存在会话记录里，还没有独立的长期存储空间。

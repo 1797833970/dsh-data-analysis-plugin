@@ -1,32 +1,32 @@
-# @andy1797833970/dsh-code-runtime-python
+# Python 代码运行器
 
-Python process backend for the code-execution seam: runs one model-written
-Python program against host tool bindings in a sandboxed subprocess.
+这个包负责在独立的 Python 进程里运行模型写的数据分析代码。
 
-## What it does
+## 它做什么
 
-Registers `ctx.codeRuntime` with `language: 'python'` and `isolation:
-'process'`. Each `run()` spawns `python` through `ctx.subprocess`, wraps the
-argv through `ctx.sandbox`, and bridges `await tools.name(args)` calls over
-newline-delimited JSON on stdio. A Python-side AST guard blocks dangerous
-imports and calls; wall-clock timeout, tree termination, and an outer-output
-cap bound each run. Runs are stateless: no DataFrame survives between runs.
+- 提供 Python 代码运行能力。
+- 限制代码只能导入允许的 Python 库。
+- 限制运行时间、输出大小和文件访问范围。
+- 当模型代码调用“保存图表”“保存报告”等工具时，把请求传回主程序。
+- 每次运行结束就清空状态，不会把上一次变量带到下一次。
 
-## Configuration
+## 可以调整的配置
 
-`pythonCommand`, `allowedModules`, `pythonEnv`, `timeoutMs`, `graceMs`, and
-`maxOutputBytes` are validated deployment choices, never hidden defaults.
+- Python 解释器路径。
+- 允许使用的 Python 库。
+- Python 环境变量。
+- 运行超时时间。
+- 清理进程的宽限时间。
+- 最大输出字节数。
 
-## Model Experience
+这些配置都由外部设置，不在代码里写死。
 
-Indirectly, through Code Mode in dsh-tools, which exposes run_code and renders the Python runtime's logs, value, and failures.
+## 模型体验
 
-#### KV Cache effect
+模型通过代码模式使用这个运行器。它能看到代码运行后的日志、返回值和错误信息。
 
-No direct invalidation; the named consumer owns any request-prefix changes.
+## 已知限制
 
-## Known Limitations
-
-- **Soft boundary** — the import guard plus the file sandbox are not a container; network and syscall isolation are not provided.
-- **Stateless runs only** — no persistent kernel; intermediate data must persist as files between stages.
-- **No streaming logs** — logs arrive only on the settled result.
+- 它提供的是文件沙箱和代码检查，不是完整的容器级隔离。
+- 每次运行都是无状态的，中间结果必须保存成文件。
+- 日志只在运行结束后统一返回，不支持边运行边输出。

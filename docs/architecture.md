@@ -1,17 +1,71 @@
-# 架构
+# 架构说明
 
-## 组合
+这份文档给想了解插件内部结构的人看。它不要求你已经会写代码，但会提到一些固定名词。
 
-`@andy1797833970/dsh-bundle-data-analysis` 提供一个 profile patch。它禁用内置 `code-runtime`，启用 `tool-skill`，写入 data-analysis persona，并按顺序插入 `code-runtime-python`、`data-analysis`、`skill-data-analysis` 和 `tool-ask-user`。
+## 插件是怎么装进 DeepSeek Harness 的
 
-## Python 执行
+插件不直接修改 DeepSeek Harness 的源码，而是使用它提供的“组合包”机制。
 
-`code-runtime-python` 在 `ctx.codeRuntime` 上注册 `language: 'python'`、`isolation: 'process'`。每次 `run()` 启动一个 Python 子进程，经 stdio 的 NDJSON 协议桥接 `await tools.*` 调用；AST 守卫、文件沙箱、超时和输出上限限制单次运行。进程结束即丢状态，中间 DataFrame 以 parquet 文件持久化。
+启动时，系统会按顺序加载三部分：
 
-## 模型流程与状态
+1. DeepSeek Harness 的基础环境。
+2. 网页界面。
+3. 本插件的数据分析组合包。
 
-`data-analysis` 注册 5 个工具。每个工具写入一个 `analysis/*` 会话事件；`analysisState` 投影把事件折叠为 `{ loadedPath, autoMode, route, charts, reportId }`。`skill-data-analysis` 提供阶段顺序和配方；`ask_user_question` 做阶段闸门。模型在 Code Mode 里决定每个阶段的 pandas/sklearn 代码。
+这个组合包里有一个“补丁文件”，它会做三件事：
 
-## 分发与路径
+- 关掉 DeepSeek Harness 自带的 TypeScript 代码运行器。
+- 换成这个插件提供的 Python 代码运行器。
+- 把数据分析工具、操作说明和用户确认按钮挂到系统中。
 
-bundle patch 不含 `process.cwd()` 相对路径，读取器逻辑内联。profile 按 `dsh-base`、`dsh-web-app`、`bundle-data-analysis` 顺序组合，最后应用用户的 `cordis.patch.yml`。
+这样用户安装插件后，整个环境就变成了一个数据分析智能体。
+
+## Python 代码是怎么运行的
+
+模型写的数据分析代码不是直接在主程序里运行，而是每次都启动一个独立的 Python 子进程。
+
+这样做的好处是：
+
+- 如果模型写错了代码，不会把主程序带崩。
+- 每次运行结束后，上一次的变量会自动清空。
+- 运行时间、输出大小和能导入哪些库都有明确限制。
+
+子进程和主程序之间通过一种简单的文本协议通信。当模型代码里调用“保存图表”“保存报告”这类工具时，子进程会把请求发回主程序，由主程序真正执行。
+
+## 一次分析会产生哪些记录
+
+插件里有五个主要工具：
+
+| 工具 | 作用 |
+| --- | --- |
+| 读取表格 | 登记要分析的文件，并生成标准数据文件 |
+| 选择路线 | 固定这次分析走可视化路线还是机器学习路线 |
+| 保存图表 | 把一张图表保存下来 |
+| 保存报告 | 把最终报告保存下来 |
+| 导出 PDF | 把报告导出成 PDF，或退回 HTML |
+
+每使用一个工具，插件都会往会话记录里写一条信息。网页端根据这些记录，把“当前分析到哪一步、已经生成了哪些图表和报告”重新计算出来。
+
+## 模型的行为是怎么被约束的
+
+插件里有一份“操作说明”，它会告诉模型：
+
+- 先读取文件，再清洗数据。
+- 清洗完后先做探索分析。
+- 让用户确认继续，或选择路线。
+- 最后画图或建模，并生成报告。
+
+这份说明只是指导，不把流程写死。模型仍然可以自己决定每一步具体写什么 Python 代码。
+
+## 图表和报告怎么显示到网页
+
+`client-ui-data-analysis` 是浏览端插件。它注册两个会话节点：
+
+- 看到 `analysis/chart` 事件，就把 ECharts 配置渲染成可交互图表。
+- 看到 `analysis/report` 事件，就把 Markdown 渲染成报告卡片。
+
+后端只负责保存这些事件，前端负责把它们变成用户能直接看到的卡片。
+
+## 文件路径为什么能正常工作
+
+插件不依赖“启动时所在的目录”。它把需要读取的文件和需要写入的文件都放在会话自己的工作目录里，所以插件被 npm 安装到别处后，仍然能正确找到文件。

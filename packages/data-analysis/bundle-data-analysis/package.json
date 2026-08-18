@@ -1,7 +1,7 @@
 {
   "name": "@andy1797833970/dsh-bundle-data-analysis",
   "description": "The data-analysis agent bundle: a profile patch layer composing the Python code runtime, data-analysis tools, and skill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,8 @@
   "dependencies": {
     "@andy1797833970/dsh-code-runtime-python": "workspace:^",
     "@andy1797833970/dsh-data-analysis": "workspace:^",
-    "@andy1797833970/dsh-skill-data-analysis": "workspace:^"
+    "@andy1797833970/dsh-skill-data-analysis": "workspace:^",
+    "@andy1797833970/dsh-client-ui-data-analysis": "workspace:^"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6",

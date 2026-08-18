@@ -30,5 +30,8 @@
   "include": [
     "packages/**/src/**/*.ts",
     "packages/**/tests/**/*.ts"
+  ],
+  "exclude": [
+    "packages/client"
   ]
 }

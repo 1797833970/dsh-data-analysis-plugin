@@ -1,5 +1,8 @@
 node_modules/
 lib/
+src/**/*.js
+src/**/*.d.ts
+src/**/*.map
 .venv/
 *.tsbuildinfo
 __pycache__/

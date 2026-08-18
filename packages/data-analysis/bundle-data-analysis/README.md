@@ -1,17 +1,21 @@
-# @andy1797833970/dsh-bundle-data-analysis
+# 数据分析组合包
 
-Profile bundle for the data-analysis agent: a patch layer composing the Python
-code runtime, the data-analysis tools, and the runtime skill.
+这个包负责把 Python 代码运行器、数据分析工具和操作说明组合起来。
 
-## Model Experience
+## 它做什么
 
-Indirectly, through the inserted plugin rows, whose packages own every model-facing registration.
+- 关掉 DeepSeek Harness 自带的 TypeScript 代码运行器。
+- 挂载 Python 代码运行器。
+- 挂载数据分析工具。
+- 挂载数据分析操作说明。
+- 挂载网页端的图表和报告展示模块。
+- 挂载用户确认按钮。
 
-#### KV Cache effect
+## 模型体验
 
-No direct invalidation; inserted row packages own any request-prefix changes.
+这个包本身不直接给模型增加内容。模型看到的内容由它挂载的那些部分提供。
 
-## Known Limitations
+## 已知限制
 
-- **Patch-only composition** — the bundle inserts the host rows; the agent preset and client wiring are separate surfaces.
-- **Single runtime** — the Python backend replaces the TypeScript worker, so this bundle cannot stack beside dsh-code-runtime-worker-thread.
+- 它只负责组合，不负责网页展示和用户身份配置。
+- 它一次只使用一个代码运行器，不能同时使用 Python 和 TypeScript 两种运行器。

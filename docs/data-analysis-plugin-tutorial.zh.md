@@ -1,67 +1,70 @@
-# 数据分析插件：使用与概念（小白版）
+# 数据分析插件：使用与概念说明
 
-本文给第一次接触这个插件的读者解释它由哪些零件组成、一次分析怎么跑完，以及想改行为时看哪里。它不是开发日志，也不展开实现细节。
+这份文档给第一次接触这个插件的人看。它只讲两件事：插件装好后能做什么，以及插件内部大致由哪些部分组成。
 
 ## 装好后能做什么
 
-用户把表格文件路径和一个问题交给智能体，智能体自己完成：读取并清洗数据 → 探索分析 → 选择可视化或机器学习路线 → 生成图表和报告 → 导出 PDF 或 HTML。
+用户只需要把一个表格文件交给插件，再用一句话说明想分析什么。插件会自动完成：
 
-## 5 个零件
+1. 读取表格文件。
+2. 清洗重复值、缺失值和类型错误。
+3. 做一次快速的探索分析。
+4. 让用户选择可视化分析或机器学习建模。
+5. 生成图表和报告。
+6. 尝试导出 PDF。
 
-| 包 | 职责 | 类比 |
-| --- | --- | --- |
-| `code-runtime-python` | 让模型在隔离的 Python 进程里写 pandas/sklearn | 安全考场 |
-| `data-analysis` | 提供 5 个工具、`analysis/*` 事件和 `analysisState` 投影 | 按钮 + 账本 + 仪表盘 |
-| `skill-data-analysis` | 提供清洗、EDA、可视化、建模、报告的操作说明 | 新员工 SOP |
-| `bundle-data-analysis` | 用 profile patch 把上面三件按顺序装起来 | 装机清单 |
-| `client-ui-data-analysis` | 在网页里渲染 ECharts 图表和 Markdown 报告 | 成品展示 |
+如果用户一开始就说“全自动”，中间的确认步骤会被跳过。
 
-前 4 个是 v1 构建工作区里的活动包；`client-ui-data-analysis` 位于 `deferred/`，当前不构建。v1 用通用工具卡片和 Markdown 输出展示图表与报告。
+## 五个主要部分
 
-## 一次分析按什么顺序走
+| 部分 | 它负责什么 |
+| --- | --- |
+| Python 运行环境 | 让模型能在一个独立的 Python 环境里写数据处理代码 |
+| 数据分析工具 | 提供读取文件、选择路线、保存图表、保存报告、导出 PDF 等功能 |
+| 操作说明 | 告诉模型每一步应该怎么清洗、探索、画图和建模 |
+| 安装组合包 | 把前面几个部分按正确顺序组装起来 |
+| 网页展示层 | 把图表和报告用更好看的方式显示出来 |
 
-1. 模型调用 `load_table(path, question)`，把输入文件登记为分析目标并写 `loaded.parquet`。
-2. 模型在 `run_code` 里读数据、看形状和缺失值。
-3. 模型在 `run_code` 里清洗数据，把中间结果写 `clean.parquet`。
-4. 模型调用 `ask_user_question`，让用户决定继续或重新分析。
-5. 模型调用 `set_route(route)`，固定 `viz` 或 `ml`。
-6. 模型做 EDA，然后可视化或建模。
-7. 模型调用 `save_chart` 保存图表，调用 `save_report` 保存报告。
-8. 模型调用 `export_pdf`，产出 PDF；Python 渲染器不可用时返回 HTML。
+这五个部分现在都在使用。图表和报告由网页展示层渲染成可交互图表卡片和报告卡片。
 
-问题中出现“全自动”“自动分析”“自动跑”或“auto”时，第 4 步的闸门会跳过。
+## 一次分析具体怎么走
 
-## 模型能看到什么
+1. 用户给出文件路径，例如 `D:\data\sales.csv`。
+2. 插件读取这个文件，自动判断编码和分隔符。
+3. 插件把读取到的数据保存成标准格式，供后面重复使用。
+4. 插件清洗数据，并把清洗后的结果保存成文件。
+5. 插件询问用户是否继续；如果是全自动模式，就跳过。
+6. 用户选择“可视化分析”或“机器学习建模”。
+7. 插件做探索分析，然后画图或训练模型。
+8. 插件保存图表和报告。
+9. 插件尝试导出 PDF；如果环境不支持，就生成 HTML 报告。
 
-### 工具
+## 模型能看到哪些工具
+
+虽然用户不用直接操作这些工具，但了解它们能帮助你理解插件的行为：
 
 | 工具 | 作用 |
 | --- | --- |
-| `load_table(path, question)` | 登记文件，返回格式和是否全自动 |
-| `set_route(route)` | 固定 `viz` 或 `ml` |
-| `save_chart(spec)` | 保存一张 ECharts 图表 |
-| `save_report(markdown)` | 保存最终 Markdown 报告 |
-| `export_pdf(reportId)` | 渲染报告为 PDF，或返回 HTML |
+| 读取表格 | 登记文件，并告诉模型文件格式和是否全自动 |
+| 选择路线 | 固定这次分析走可视化还是机器学习 |
+| 保存图表 | 保存一张图表 |
+| 保存报告 | 保存最终报告 |
+| 导出 PDF | 把报告导出成 PDF，或退回 HTML |
 
-### 事件与投影
+## 常见名词怎么理解
 
-每个工具写入一个 `analysis/*` 会话事件：`analysis/loaded`、`analysis/route`、`analysis/chart`、`analysis/report`。`analysisState` 投影把这些事件折叠成当前进度。
+- 模型：这里指 DeepSeek Harness 里的智能体，它负责决定每一步做什么。
+- 工具：模型可以调用的功能按钮，比如“读取表格”“保存图表”。
+- 会话记录：系统对“刚才发生了什么”的完整记录，方便回看和恢复进度。
+- 投影：把一堆零散记录，整理成“当前已经做到哪一步”的简单状态。
+- 组合包：一组启动时需要加载的插件配置。
 
-## 名词表
+## 如果想修改插件，去哪里找
 
-- `ctx`：Cordis 上下文，插件之间通过它发现和调用服务。
-- `effect`：注册一个贡献，插件卸载时一并撤销。
-- `Code Mode / run_code`：模型写整段代码一次运行，而不是逐步调用工具。
-- `session event`：会话日志中的一条可回放记录。
-- `projection`：把事件流折叠成当前状态。
-- `bundle`：profile patch 层，声明启动时挂载哪些插件。
-
-## 想改行为时看哪里
-
-| 想改什么 | 入口 |
+| 想改什么 | 去哪里看 |
 | --- | --- |
-| 分析流程、提示词、配方 | `packages/data-analysis/skill-data-analysis/src/index.ts` |
-| 新增或修改工具 | `packages/data-analysis/data-analysis/src/index.ts` |
-| Python 可用模块与安全规则 | `packages/code-runtime/code-runtime-python/src/index.ts` |
-| 启动时装哪些零件 | `packages/data-analysis/bundle-data-analysis/cordis.patch.yml` |
+| 分析流程和操作说明 | `packages/data-analysis/skill-data-analysis/src/index.ts` |
+| 读取、保存、导出等工具 | `packages/data-analysis/data-analysis/src/index.ts` |
+| Python 能使用哪些库、安全规则 | `packages/code-runtime/code-runtime-python/src/index.ts` |
+| 启动时加载哪些部分 | `packages/data-analysis/bundle-data-analysis/cordis.patch.yml` |
 | 图表和报告在网页里的样子 | `deferred/ui-data-analysis/src/client/` |

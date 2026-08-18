@@ -30,6 +30,8 @@ const ORCHESTRATOR = `你是数据分析智能体。这是一个多技能工作�
 
 Python 导入规则：只 import pandas/numpy/matplotlib/sklearn 以及 json/math/statistics/datetime/collections 等白名单标准库。禁止 import os/sys/subprocess/pathlib/shutil。数据文件统一由 load_table 读取，路径一律用相对文件名写当前工作目录，不要用 os.path 或绝对路径拼中间文件。
 
+run_code 已经处于异步执行环境：直接写顶层 await tools.xxx(...)，不要定义 async def main() 后再调用 asyncio.run(main())，也不要写 if __name__ == '__main__'。
+
 总体流程：
 1. load_table(path, question) 登记文件；它会自动解析（支持 CSV/TSV/XLSX/JSON/Parquet 等，自动处理 UTF-8/GBK 编码与分隔符），返回 schema，并生成 loaded.parquet。
 2. 加载 data-cleaning 技能，先用 pd.read_parquet('loaded.parquet') 读数据，再清洗，把结果写 clean.parquet。
@@ -116,7 +118,20 @@ const MODELING = `机器学习建模技能。仅分类与回归，不做聚类�
 const REPORTING = `报告撰写技能。根据前面所有阶段的结果写 Markdown 报告，结构如下：
 数据概览、关键发现（引用具体数字）、图表说明、结论与建议。
 
-写好后调用 save_report(markdown)，再 export_pdf(reportId)。只输出报告正文，不需要额外解释。`
+生成 markdown 时不要使用三引号字符串。用 Python 列表收集每一行，再用 "\\n".join(lines) 拼接；每个字符串内容必须从引号后第 0 列开始，前面不要有空格。
+
+示例：
+lines = [
+    "# 报告标题",
+    "",
+    "## 一、数据概览",
+    "",
+    "- 样本量：147 行",
+]
+markdown = "\\n".join(lines)
+report = await tools.save_report({"markdown": markdown})
+
+写好后调用 save_report(markdown)，再 export_pdf(reportId)。不要在普通聊天回复里重复完整 Markdown 正文；报告卡片会在 GUI 里渲染，聊天里只给一个简短总结。`
 
 const SKILLS: readonly SkillSpec[] = [
   {

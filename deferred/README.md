@@ -1,6 +1,10 @@
-# Deferred 目录
+# 暂时没有参与构建的目录
 
-`deferred/` 下的源码不参与 v1 构建、测试和发布。它们保留为后续前端集成的实现参考。
+这个目录下面的代码不会参与当前版本的构建、测试和发布。
 
-- `ui-data-analysis/` — 图表和报告的自定义 Conversation Node 渲染器。v1 通过通用工具卡片和 Markdown 输出展示；启用该包需要重建 dsh web 前端。
-- `agent-preset-data-analysis/` — 独立的 agent preset 文件。v1 的 bundle patch 在 `cordis.patch.yml` 中提供等价的 persona 和工具组合。
+## 里面有什么
+
+- `ui-data-analysis`：旧的前端展示层草稿。活动版本已经放到 `packages/client/ui-data-analysis`，这里仅保留历史参考。
+- `agent-preset-data-analysis`：一组身份和工具配置，作为未来可选方案保留。
+
+当前版本使用 `packages/client/ui-data-analysis` 渲染图表和报告；这里不再构建旧副本。

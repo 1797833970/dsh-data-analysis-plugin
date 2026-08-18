@@ -1,20 +1,25 @@
-# @andy1797833970/dsh-skill-data-analysis
+# 数据分析操作说明
 
-Data-analysis skill family: a coarse `data-analysis` orchestrator plus five
-focused embedded skills (`data-cleaning`, `eda`, `data-visualization`,
-`ml-modeling`, `report-writing`) registered into `ctx.skills`. A reusable Python
-toolbox under `toolbox/` ships the same recipes as importable helpers for
-deployments that wire `dsh-code-runtime-python.toolboxDirs`.
+这个包给模型提供一套数据分析的操作说明，并附带一些可以直接复用的 Python 工具函数。
 
-## Model Experience
+## 它做什么
 
-Indirectly, through dsh-tool-skill, which renders the skill catalog and loaded instruction body.
+操作说明包括六个部分：
 
-#### KV Cache effect
+- 一个总流程，说明先做什么、后做什么。
+- 数据清洗说明。
+- 探索性分析说明。
+- 可视化说明。
+- 机器学习建模说明。
+- 报告撰写说明。
 
-No direct prompt effect; the named consumer owns catalog and instruction rendering.
+每个部分都包含可以直接照抄的代码示例。`toolbox` 目录里还有一批现成的 Python 函数，方便需要时直接调用。
 
-## Known Limitations
+## 模型体验
 
-- **Inline recipes first** — the skills carry their recipes inline; the `toolbox/` import path only activates when `toolboxDirs` and the `toolbox` allowlist entry are configured.
-- **Procedure, not enforcement** — the skill guides the model; the gates are ordinary ask_user_question calls.
+模型会看到这些操作说明，并按说明来安排分析步骤。
+
+## 已知限制
+
+- 代码示例主要写在说明文字里，Python 工具函数需要额外配置才会被导入。
+- 这些说明只负责指导模型，不能强制模型一定按顺序执行。

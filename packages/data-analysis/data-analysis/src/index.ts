@@ -36,7 +36,7 @@ export interface Config {
   autoModeKeywords?: string[]
   /** Maximum accepted question length in characters. */
   maxQuestionLength?: number
-  /** Python executable used by `export_pdf`; omit for the platform default. */
+  /** Python executable used by table loading and `export_pdf`; defaults to `DSH_PYTHON`, then the platform default. */
   pdfPythonCommand?: string
   /** Wall-clock budget for one PDF render before the render is aborted. */
   pdfTimeoutMs?: number
@@ -47,7 +47,7 @@ export const Config: z<Config> = z.object({
   supportedExtensions: z.array(z.string()).default(['.csv', '.tsv', '.txt', '.xlsx', '.xls', '.json', '.parquet']),
   autoModeKeywords: z.array(z.string()).default(['全自动', '自动分析', '自动跑', 'auto']),
   maxQuestionLength: z.number().default(2000),
-  pdfPythonCommand: z.string().default(process.platform === 'win32' ? 'python' : 'python3'),
+  pdfPythonCommand: z.string().default(process.env.DSH_PYTHON || (process.platform === 'win32' ? 'python' : 'python3')),
   pdfTimeoutMs: z.number().default(30_000),
 })
 
@@ -66,6 +66,18 @@ const analysisStateSchema: ZodType<AnalysisState> = zod.object({
 /** Escape text for the HTML report fallback. */
 function escapeHtml(text: string): string {
   return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+}
+
+/** Remove the common leading whitespace from a model-written Markdown report. */
+function dedentMarkdown(text: string): string {
+  const lines = text.replace(/^\n+|\n+$/g, '').split('\n')
+  const indents = lines
+    .filter(line => line.trim().length > 0)
+    .map(line => /^[ \t]*/.exec(line)?.[0].length ?? 0)
+  if (indents.length === 0) return lines.join('\n')
+  const minIndent = Math.min(...indents)
+  if (minIndent === 0) return lines.join('\n')
+  return lines.map(line => line.slice(minIndent)).join('\n')
 }
 
 /** Render Markdown to a printable HTML document without external dependencies. */
@@ -219,12 +231,13 @@ async function renderPdfBytes(
   pythonCommand: string,
   timeoutMs: number,
   signal: AbortSignal | undefined,
+  workspaceRoot: string,
 ): Promise<Uint8Array | undefined> {
   let proc: SubprocessHandle
   try {
     proc = ctx.subprocess.spawn({
       argv: [pythonCommand, '-u', '-c', PDF_SCRIPT],
-      cwd: process.cwd(),
+      cwd: workspaceRoot,
       stdio: { stdin: { data: markdown }, stdout: 'pipe', stderr: 'pipe' },
       graceMs: 5_000,
       signal,
@@ -258,10 +271,11 @@ async function loadTableSchema(
   pythonCommand: string,
   timeoutMs: number,
   signal: AbortSignal | undefined,
+  workspaceRoot: string,
 ): Promise<Record<string, JsonValue> | undefined> {
   const proc = ctx.subprocess.spawn({
     argv: [pythonCommand, '-u', '-c', LOAD_SCRIPT, path, parquetOut],
-    cwd: process.cwd(),
+    cwd: workspaceRoot,
     stdio: { stdin: 'ignore', stdout: 'pipe', stderr: 'pipe' },
     graceMs: 5_000,
     signal,
@@ -295,7 +309,7 @@ export function apply(ctx: Context, config: Config): void {
     supportedExtensions: config.supportedExtensions ?? ['.csv', '.tsv', '.txt', '.xlsx', '.xls', '.json', '.parquet'],
     autoModeKeywords: config.autoModeKeywords ?? ['全自动', '自动分析', '自动跑', 'auto'],
     maxQuestionLength: config.maxQuestionLength ?? 2000,
-    pdfPythonCommand: config.pdfPythonCommand ?? (process.platform === 'win32' ? 'python' : 'python3'),
+    pdfPythonCommand: config.pdfPythonCommand ?? (process.env.DSH_PYTHON || (process.platform === 'win32' ? 'python' : 'python3')),
     pdfTimeoutMs: config.pdfTimeoutMs ?? 30_000,
   }
   ctx.inject(['sessionProjections'], (projectionCtx) => {
@@ -372,7 +386,7 @@ export function apply(ctx: Context, config: Config): void {
       const workspaceRoot = exec.agent.session.header.cwd ?? process.cwd()
       const loadedPath = join(workspaceRoot, 'loaded.parquet')
       const schema = await loadTableSchema(
-      ctx, path, loadedPath, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal,
+      ctx, path, loadedPath, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal, workspaceRoot,
       )
       const loaded: AnalysisLoaded = { path, format, autoMode, question, ...schema === undefined ? {} : { schema, loadedPath } }
       exec.agent.session.append('analysis/loaded', loaded)
@@ -468,7 +482,7 @@ export function apply(ctx: Context, config: Config): void {
       render: (_args, value) => [{ type: 'text', text: `Saved report ${value.reportId}.` }],
     },
     execute(args, exec) {
-      const markdown = args.markdown.trim()
+      const markdown = dedentMarkdown(args.markdown.trim())
       if (markdown.length === 0) throw new Error('invalid report: expected a non-empty markdown body')
       const reportId = randomUUID()
       if (!exec.agent) throw new Error('save_report requires an owning agent session')
@@ -512,9 +526,9 @@ export function apply(ctx: Context, config: Config): void {
       const report = findReport(exec.agent.session.events, args.reportId)
       if (report === undefined) throw new Error(`report ${args.reportId} not found`)
       const html = renderReportHtml(report.markdown)
-      const bytes = await renderPdfBytes(ctx, report.markdown, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal)
-      if (bytes === undefined) return { reportId: args.reportId, html }
       const workspaceRoot = exec.agent.session.header.cwd ?? process.cwd()
+      const bytes = await renderPdfBytes(ctx, report.markdown, policy.pdfPythonCommand, policy.pdfTimeoutMs, exec.signal, workspaceRoot)
+      if (bytes === undefined) return { reportId: args.reportId, html }
       const pdfPath = join(workspaceRoot, `report-${args.reportId}.pdf`)
       await writeFile(pdfPath, bytes)
       return { reportId: args.reportId, html, pdfPath }
