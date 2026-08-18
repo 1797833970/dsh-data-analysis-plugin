@@ -14,7 +14,7 @@ Indirectly, through dsh-tool-skill, which renders the skill catalog and loaded i
 
 No direct prompt effect; the named consumer owns catalog and instruction rendering.
 
-## Known Limitations and Deferred Work
+## Known Limitations
 
 - **Inline recipes first** — the skills carry their recipes inline; the `toolbox/` import path only activates when `toolboxDirs` and the `toolbox` allowlist entry are configured.
 - **Procedure, not enforcement** — the skill guides the model; the gates are ordinary ask_user_question calls.

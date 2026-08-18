@@ -1,38 +1,13 @@
-# Running the plugin
+# 运行示例
 
-## Published install (recommended)
-
-Once the `@andy1797833970/*` packages are published (versions pinned because
-`@deepseek-ai/dsh-web-app`'s npm `latest` tag still points at a broken build):
+安装 Python 环境和 profile 后启动：
 
 ```sh
-dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
-dsh plugin --profile data-analysis add @andy1797833970/dsh-bundle-data-analysis@0.1.0
-dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
 
-The profile directory is `$DSH_HOME/profiles/data-analysis`. Its `package.json`
-lists `@deepseek-ai/dsh-base`, `@deepseek-ai/dsh-web-app`, and
-`@andy1797833970/dsh-bundle-data-analysis` as bundle layers, in that order.
+打开 `http://127.0.0.1:3080`，输入一个完整绝对路径并让智能体全自动分析：
 
-## Source install (before publishing)
+> 帮我全自动分析 `/absolute/path/to/sales.csv`
 
-From a checkout that has both `deepseek-harness` and this repository as
-siblings, add the local package to a profile:
-
-```sh
-cd "$DSH_HOME/profiles/data-analysis"
-pnpm add <path-to-this-repo>/packages/data-analysis/bundle-data-analysis
-dsh --profile data-analysis
-```
-
-## Python
-
-```sh
-./scripts/setup-python.sh   # macOS/Linux
-scripts/setup-python.ps1    # Windows PowerShell
-```
-
-This creates `./.venv`, installs `requirements-data-analysis.txt`, and points
-`DSH_PYTHON` at the venv interpreter.
+预期会话工作目录出现 `loaded.parquet` 和 `clean.parquet`，页面显示分析进度、图表和报告。

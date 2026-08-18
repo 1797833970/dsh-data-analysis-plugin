@@ -1,7 +1,8 @@
 # @deepseek-ai/dsh-client-ui-data-analysis
 
 Browser-side data-analysis wizard UI: ECharts and Markdown conversation nodes
-for saved charts and reports.
+for saved charts and reports. This package lives under `deferred/` and is not
+built or published in v1.
 
 ## What it does
 
@@ -10,8 +11,8 @@ Registers two conversation-node definitions (`data-analysis-chart`,
 chart renderer mounts an ECharts instance from the saved option; the report
 renderer uses the shared Markdown primitive.
 
-## Known Limitations and Deferred Work
+## Known Limitations
 
-- **No wizard step bar** — the `analysisState` projection-driven stage strip is not yet rendered.
+- **No wizard step bar** — the `analysisState` projection does not render a stage strip.
 - **ECharts only** — charts render through `echarts`; there is no image or static fallback.
-- **Chart snapshots deferred** — report PDF export does not embed chart snapshots.
+- **No chart snapshots** — report PDF export does not embed chart snapshots.

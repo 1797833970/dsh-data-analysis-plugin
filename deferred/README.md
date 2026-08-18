@@ -1,13 +1,6 @@
-# Deferred v1 enhancements (not part of the built workspace)
+# Deferred 目录
 
-These sources are kept so the work is not lost, but they are intentionally
-outside the `packages/*/*` workspace glob and are not built, tested, or
-published in v1.
+`deferred/` 下的源码不参与 v1 构建、测试和发布。它们保留为后续前端集成的实现参考。
 
-- `ui-data-analysis/` — the native web Chat node renderers for saved charts and
-  reports (ECharts card + Markdown report card). v1 shows charts and reports
-  through the generic tool card and Markdown output instead; this package needs
-  a rebuilt dsh web frontend to be re-enabled.
-- `agent-preset-data-analysis/` — the `data-analysis` agent preset
-  (`agent.cordis.yml` + `preset.yml`) from the in-repo prototype. The v1 bundle
-  patch carries the equivalent persona/tool wiring in `cordis.patch.yml`.
+- `ui-data-analysis/` — 图表和报告的自定义 Conversation Node 渲染器。v1 通过通用工具卡片和 Markdown 输出展示；启用该包需要重建 dsh web 前端。
+- `agent-preset-data-analysis/` — 独立的 agent preset 文件。v1 的 bundle patch 在 `cordis.patch.yml` 中提供等价的 persona 和工具组合。

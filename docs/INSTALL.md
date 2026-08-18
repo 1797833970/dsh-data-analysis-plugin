@@ -1,53 +1,20 @@
-# 安装、删除与重装
+# 安装、卸载与重装
 
 ## 前置条件
 
-- 一个可运行的 DeepSeek Harness：目前 dsh 尚未发布，需使用
+- 一个可运行的 DeepSeek Harness。当前 dsh 尚未发布时，使用
   [`deepseek-harness`](https://github.com/deepseek-ai/deepseek-harness) 源码
-  checkout（`pnpm install && pnpm build` 或直接用源码启动）。
-- Python 3.11+，先运行 `scripts/setup-python.ps1` / `setup-python.sh`。
-- `DSH_PYTHON` 指向该 Python 解释器。
+  checkout（`pnpm install && pnpm build`，或直接用源码启动）。
+- Python 3.11+。
+- pnpm。
 
-## 第一步：公开发布到 GitHub
-
-仓库公开地址：
+## 获取插件
 
 ```sh
 git clone https://github.com/1797833970/dsh-data-analysis-plugin.git
 ```
 
-## 第二步：删除本地旧插件
-
-如果之前用 dsh 源码内的原型跑过，删除并还原 dsh：
-
-```sh
-# 删除 dsh 源码里的原型包
-rm -rf packages/data-analysis
-rm -rf packages/code-runtime/code-runtime-python
-rm -rf packages/client/ui-data-analysis
-```
-
-然后还原 dsh 源码两处改动：`packages/boot/app-boot/src/profile.ts` 里删除
-`'data-analysis'` 模板；`packages/bundle/web-app/cordis.patch.yml` 删除
-`ui-data-analysis` 行及 `web-app/package.json` 对应依赖。
-
-## 第三步：重新安装
-
-### 方式 A：本地路径（开发 / dsh 未发布时可用）
-
-先构建本仓库：
-
-```sh
-pnpm install
-pnpm build
-scripts/reinstall-local.ps1
-```
-
-脚本会打包 4 个 `@andy1797833970/*` 包 → 创建 `data-analysis` profile → 用
-`pnpm.overrides` 把内部依赖重定向到本地 tarball → `pnpm install` → 打印启动
-命令。
-
-### 方式 B：npm 安装（dsh 发布后）
+## 方式 A：发布包安装
 
 ```sh
 dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6
@@ -56,11 +23,76 @@ dsh plugin --profile data-analysis install
 dsh --profile data-analysis
 ```
 
-两条 `add` 必须分开执行（合并成一条会把 bundle 层顺序排错，导致 `code-runtime`
-无法被禁用）。安装后可用 `dsh --profile data-analysis --dump-config` 确认
-`code-runtime` 为 `disabled: true` 且 `code-runtime-python` 已挂载。
+两条 `add` 必须分开执行，顺序决定 `dsh.profile.bundles` 中 `web-app` 和
+`bundle` 的先后；顺序错误会导致 `code-runtime` 未被禁用。`dsh plugin` 修改该
+profile 的 manifest，重启 dsh 后插件才会加载。
 
-## 第四步：验证
+## 方式 B：本地源码安装（Windows）
+
+```powershell
+cd <plugin-root>
+pnpm install
+pnpm build
+scripts\reinstall-local.ps1
+```
+
+脚本会打包 4 个 `@andy1797833970/*` 包、重建 `$DSH_HOME/profiles/data-analysis`、
+用 `pnpm.overrides` 把内部依赖重定向到本地 tarball，并执行 `pnpm install`。
+启动命令：
+
+```sh
+pnpm dsh --profile data-analysis
+```
+
+macOS 和 Linux 的本地自动重装脚本尚未提供；在这些平台上优先使用发布包安装。
+
+## Python 环境
+
+Windows：
+
+```powershell
+scripts\setup-python.ps1
+```
+
+macOS / Linux：
+
+```sh
+./scripts/setup-python.sh
+```
+
+脚本创建 `.venv`、安装 `requirements-data-analysis.txt`，并提示设置
+`DSH_PYTHON`。运行时只读取 `DSH_PYTHON`。
+
+## 验证
+
+安装后执行：
+
+```sh
+dsh --profile data-analysis --dump-config
+```
+
+确认 `code-runtime` 为 `disabled: true`，且 `code-runtime-python`、
+`data-analysis`、`skill-data-analysis` 已挂载。然后启动：
+
+```sh
+dsh --profile data-analysis
+```
 
 打开 `http://127.0.0.1:3080`，给一个 CSV 的完整绝对路径做一次分析，确认
-`loaded.parquet` / `clean.parquet` 出现在会话工作目录且能出图出报告。
+`loaded.parquet` 和 `clean.parquet` 出现在会话工作目录，页面能出图和报告。
+
+## 卸载与重装
+
+删除 profile 目录后重新安装：
+
+Windows：
+
+```powershell
+Remove-Item -Recurse -Force "$env:DSH_HOME\profiles\data-analysis"
+```
+
+macOS / Linux：
+
+```sh
+rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/data-analysis"
+```

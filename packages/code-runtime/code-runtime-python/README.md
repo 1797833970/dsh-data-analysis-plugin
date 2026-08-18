@@ -25,8 +25,8 @@ Indirectly, through Code Mode in dsh-tools, which exposes run_code and renders t
 
 No direct invalidation; the named consumer owns any request-prefix changes.
 
-## Known Limitations and Deferred Work
+## Known Limitations
 
-- **Soft boundary** — the import guard plus the file sandbox are not a container; network and syscall isolation are deferred.
+- **Soft boundary** — the import guard plus the file sandbox are not a container; network and syscall isolation are not provided.
 - **Stateless runs only** — no persistent kernel; intermediate data must persist as files between stages.
 - **No streaming logs** — logs arrive only on the settled result.

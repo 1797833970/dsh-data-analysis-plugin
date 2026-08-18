@@ -41,8 +41,8 @@ Data-dependent retained tokens for arguments and results until compaction.
 
 Append-only; newly visible content follows the reusable request prefix.
 
-## Known Limitations and Deferred Work
+## Known Limitations
 
 - **HTML-first export** — `export_pdf` produces a PDF only when a configured Python renderer is available; otherwise it returns the HTML companion.
 - **Stateless analysis** — stages are stateless Code Mode runs; intermediate data persists as parquet files.
-- **No storage domain yet** — charts and reports live in session events plus the projection, not a cross-session domain.
+- **No storage domain** — charts and reports live in session events plus the projection, not a cross-session domain.
