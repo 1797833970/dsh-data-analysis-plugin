@@ -7,8 +7,10 @@
 ## 安装前需要准备什么
 
 1. 一个可以运行的 DeepSeek Harness。
-2. Python 3.11 或更高版本。
-3. pnpm。
+2. **Python 3.11 或更高版本**（需要能在命令行执行 `python --version` 或 `python3 --version`）。
+3. **pnpm 11.7.0 或更高版本**（需要能在命令行执行 `pnpm --version`）。
+   - 安装方式：`npm install -g pnpm` 或参照 [pnpm 官方安装文档](https://pnpm.io/installation)。
+4. Node.js 版本需满足 pnpm 要求（推荐 Node.js 22 LTS 或更高）。
 
 如果 DeepSeek Harness 还没有正式发布，你需要先拿到它的源码，并完成一次基础安装。
 
@@ -95,6 +97,28 @@ macOS / Linux：
 
 脚本会在插件根目录下创建 `.venv` 文件夹，安装数据分析需要的 Python 包，并提示你设置 `DSH_PYTHON` 环境变量。运行时只读取 `DSH_PYTHON`。
 
+### Python 依赖包清单
+
+`setup-python` 脚本会自动安装以下包：
+
+| 包名 | 用途 |
+| --- | --- |
+| pandas | 数据读取、清洗和处理 |
+| numpy | 数值计算 |
+| matplotlib | 图表绘制 |
+| scikit-learn | 机器学习建模 |
+| pyarrow | Parquet 文件支持 |
+| openpyxl | Excel (.xlsx) 文件读取 |
+| xlrd | Excel (.xls) 文件读取 |
+| xhtml2pdf | PDF 导出 |
+| markdown | Markdown 转 HTML |
+
+如需手动安装，可在插件根目录执行：
+
+```sh
+pip install -r requirements-data-analysis.txt
+```
+
 ## 安装后怎么确认成功
 
 先查看配置：
@@ -117,6 +141,36 @@ dsh --profile data-analysis
 ```
 
 打开 `http://127.0.0.1:3080`，给一个 CSV 文件的完整绝对路径做一次分析。如果页面能出现进度、图表和报告，就说明安装成功。
+
+## 常见问题排查
+
+### 构建失败：提示 `typescript/tsdown must be installed`
+
+- 确认已在插件根目录执行过 `pnpm install`。
+- 确认 pnpm 版本符合要求（`pnpm --version` 查看）。
+- 尝试删除 `node_modules` 和 `pnpm-lock.yaml` 后重新 `pnpm install`。
+
+### Python 找不到或报 `DSH_PYTHON` 错误
+
+- 确认已运行 `scripts/setup-python.ps1`（Windows）或 `scripts/setup-python.sh`（macOS/Linux）。
+- 确认环境变量 `DSH_PYTHON` 已设置，指向 `.venv/Scripts/python.exe`（Windows）或 `.venv/bin/python`（macOS/Linux）。
+- 手动测试：在命令行执行 `%DSH_PYTHON% --version`（Windows）或 `$DSH_PYTHON --version`（macOS/Linux），应能输出版本号。
+
+### 权限问题：脚本无法执行
+
+- Windows：右键脚本选择"以管理员身份运行"，或在 PowerShell 中先执行 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
+- macOS/Linux：执行 `chmod +x scripts/*.sh` 为脚本添加执行权限。
+
+### PDF 导出失败，只得到 HTML 报告
+
+- PDF 导出依赖 `xhtml2pdf`，确认 Python 环境中已安装该包。
+- 某些系统可能缺少字体文件，导致 PDF 渲染异常。此时 HTML 报告仍然可用。
+
+### 插件安装后启动看不到数据分析功能
+
+- 确认使用的是 `data-analysis` profile（启动命令：`dsh --profile data-analysis`）。
+- 执行 `dsh --profile data-analysis --dump-config` 检查配置是否正确加载。
+- 重启 DeepSeek Harness，确保插件重新加载。
 
 ## 怎么卸载
 

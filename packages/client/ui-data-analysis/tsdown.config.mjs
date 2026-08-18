@@ -1,5 +1,3 @@
-import { defineConfig } from 'tsdown'
-
 /** Platform seed modules the web shell shares; everything else must be bundled. */
 const PLATFORM_EXTERNALS = [
   'react',
@@ -15,7 +13,7 @@ const PLATFORM_EXTERNALS = [
   '@deepseek-ai/dsh-client-runtime/client',
 ]
 
-export default defineConfig({
+export default {
   name: '@andy1797833970/dsh-client-ui-data-analysis/client',
   entry: { client: 'lib/types/client/index.js' },
   outDir: 'lib',
@@ -30,7 +28,7 @@ export default defineConfig({
     // module loader at runtime; ECharts/zrender/tslib are not seed words, so
     // they are deliberately bundled into client.js.
     neverBundle: PLATFORM_EXTERNALS,
-    alwaysBundle: (id: string) => (PLATFORM_EXTERNALS.includes(id) ? undefined : true),
+    alwaysBundle: (id) => (PLATFORM_EXTERNALS.includes(id) ? undefined : true),
     onlyBundle: false,
   },
   define: {
@@ -44,4 +42,4 @@ export default defineConfig({
     footer: 'return module.exports; } });',
     intro: 'var module = { exports: {} }; var exports = module.exports;',
   },
-})
+}
