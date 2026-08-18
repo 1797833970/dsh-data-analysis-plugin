@@ -66,4 +66,4 @@
 | 读取、保存、导出等工具 | `packages/data-analysis/data-analysis/src/index.ts` |
 | Python 能使用哪些库、安全规则 | `packages/code-runtime/code-runtime-python/src/index.ts` |
 | 启动时加载哪些部分 | `packages/data-analysis/bundle-data-analysis/cordis.patch.yml` |
-| 图表和报告在网页里的样子 | `deferred/ui-data-analysis/src/client/` |
+| 图表和报告在网页里的样子 | `packages/client/ui-data-analysis/src/client/` |

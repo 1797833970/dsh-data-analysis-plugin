@@ -2,7 +2,7 @@
 set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-SRC="$ROOT/deferred/agent-preset-data-analysis"
+SRC="$ROOT/presets/agent-preset-data-analysis"
 DSH_HOME_VALUE="${DSH_HOME:-$HOME/.dsh}"
 DEST="$DSH_HOME_VALUE/.agent-presets/data-analysis"
 

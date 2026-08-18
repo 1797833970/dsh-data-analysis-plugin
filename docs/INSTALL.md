@@ -1,7 +1,5 @@
 # 安装、卸载与重装
 
-这份文档是给人工操作看的。如果你是要帮别人自动安装的 AI，请看《AI 自动安装说明》。
-
 如果你想修改插件或了解完整卸载方式，请看 [开发与修改说明](DEVELOPMENT.md)。
 
 ## 安装前需要准备什么
@@ -11,8 +9,6 @@
 3. **pnpm 11.7.0 或更高版本**（需要能在命令行执行 `pnpm --version`）。
    - 安装方式：`npm install -g pnpm` 或参照 [pnpm 官方安装文档](https://pnpm.io/installation)。
 4. Node.js 版本需满足 pnpm 要求（推荐 Node.js 22 LTS 或更高）。
-
-如果 DeepSeek Harness 还没有正式发布，你需要先拿到它的源码，并完成一次基础安装。
 
 ## 获取插件源码
 
@@ -49,8 +45,6 @@ pnpm dsh --profile data-analysis
 macOS 和 Linux 暂时没有自动重装脚本，优先使用发布包安装。
 
 ## 其他方式：使用发布包安装
-
-如果插件已经发布到 npm，可以用下面的命令安装。
 
 ```sh
 dsh plugin --profile data-analysis add @deepseek-ai/dsh-web-app@0.1.0-rc.6

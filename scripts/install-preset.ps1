@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$source = Join-Path $PluginRoot 'deferred\agent-preset-data-analysis'
+$source = Join-Path $PluginRoot 'presets\agent-preset-data-analysis'
 $dshHome = $env:DSH_HOME
 if ([string]::IsNullOrWhiteSpace($dshHome)) {
   $userHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }

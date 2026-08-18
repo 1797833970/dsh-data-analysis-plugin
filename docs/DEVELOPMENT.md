@@ -13,7 +13,7 @@
 - `packages/data-analysis/skill-data-analysis`：清洗、探索、可视化、建模、报告的操作说明。
 - `packages/data-analysis/bundle-data-analysis`：把上面这些部分组合起来。
 - `packages/client/ui-data-analysis`：网页端图表和报告渲染器。
-- `deferred/agent-preset-data-analysis`：`data-analysis` agent preset 的源文件。
+- `presets/agent-preset-data-analysis`：`data-analysis` agent preset 的源文件。
 
 ## 想改什么去哪里
 
